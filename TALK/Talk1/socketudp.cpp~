@@ -75,7 +75,7 @@ void Socket::receive_from(Message& message_, const sockaddr_in& address){
     slen = sizeof(server);
 
     if( (recvfrom(fd, &message, sizeof(message), 0, (struct sockaddr *) &server, &slen)) < 0 )
-        errexit("Fallo al recibir");
+        puts("Fallo al recibir");
 
 
 

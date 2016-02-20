@@ -23,9 +23,9 @@ Socket::Socket(){
 
     fd = socket(AF_INET, SOCK_DGRAM, 0);
     if( fd < 0)
-        puts("Fallo al crear el socket");
+        std::cerr << "Fallo al crear el socket: " << std::strerror(errno) << std::endl;
     else
-        std::cout << "Socket creado";
+        std::cout << "Socket creado\n";
 
     sockaddr_in server{};
     server.sin_family = AF_INET;
@@ -33,9 +33,9 @@ Socket::Socket(){
     server.sin_port = htons( PORT );
 
     if( bind(fd, (struct sockaddr *)&server, sizeof(server)) < 0 )
-        puts("Error en bind");
+        errexit("Error en bind");
     else
-        puts("Bind establecido");
+        puts("Bind establecido\n");
 
 
 
@@ -57,7 +57,7 @@ void Socket::send_to(const Message& message, const sockaddr_in& address){
     
     int result;
     if( result = sendto(fd, &message, sizeof(message), 0, (struct sockaddr *)&server, sizeof(server)) < 0 )
-        puts("Fallo al enviar.");
+        errexit("Fallo al enviar.");
 
 }
 
@@ -73,7 +73,7 @@ void Socket::receive_from(Message& message_, const sockaddr_in& address){
     slen = sizeof(server);
 
     if( (recvfrom(fd, &message, sizeof(message), 0, (struct sockaddr *) &server, &slen)) < 0 )
-        puts("Fallo al recibir");
+        errexit("Fallo al recibir");
 
 
 

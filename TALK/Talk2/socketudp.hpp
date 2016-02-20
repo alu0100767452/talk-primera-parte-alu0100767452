@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 
+
 struct Message{
     char text[1024];
 };
