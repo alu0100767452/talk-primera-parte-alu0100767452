@@ -21,7 +21,7 @@ class Socket{
     public:
         Socket();
         ~Socket();
-        void send_to(const Message& message, const sockaddr_in& address);
+        void send_to(Message& message, const sockaddr_in& address);
         void receive_from(Message& message_, const sockaddr_in& address);
 
 

@@ -12,12 +12,19 @@ int main(){
     sockaddr_in ad = make_ip_address("", 8889);
 
 
-   while(linea != "\q"){
+   while(1){
     
 
         Message message;
-        strcpy(message.text, ""); 
+        memset(message.text, 0, sizeof(message.text));
+
         std::cin >> linea;
+        if(linea == ":q")
+        {
+            std::cout << "Saliendo...\n";
+            break;
+        }
+        
         linea.copy(message.text, sizeof(message.text)-1, 0);
         s.send_to(message, ad);
 
@@ -25,6 +32,7 @@ int main(){
 
     }
 
+    return 0;
         
 
 

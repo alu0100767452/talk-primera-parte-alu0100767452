@@ -33,7 +33,7 @@ Socket::Socket(){
     server.sin_port = htons( PORT );
 
     if( bind(fd, (struct sockaddr *)&server, sizeof(server)) < 0 )
-        errexit("Error en bind");
+        std::cerr << "Error en bind" << std::endl;
     else
         puts("Bind establecido\n");
 
@@ -47,17 +47,15 @@ Socket::~Socket(){
 
 
 
-void Socket::send_to(const Message& message, const sockaddr_in& address){
-
-
+void Socket::send_to(Message& message, const sockaddr_in& address){
 
     sockaddr_in server = address;
-    socklen_t alen = sizeof(server);
 
-    
     int result;
     if( result = sendto(fd, &message, sizeof(message), 0, (struct sockaddr *)&server, sizeof(server)) < 0 )
-        errexit("Fallo al enviar.");
+        std::cerr << "Fallo al enviar." << std::endl;
+
+    memset(message.text, 0, sizeof(message.text));
 
 }
 
@@ -69,12 +67,10 @@ void Socket::receive_from(Message& message_, const sockaddr_in& address){
 
     sockaddr_in server = address;
 
-
     slen = sizeof(server);
 
     if( (recvfrom(fd, &message, sizeof(message), 0, (struct sockaddr *) &server, &slen)) < 0 )
-        errexit("Fallo al recibir");
-
+        std::cerr << "Fallo al recibir" << std::endl;
 
 
     char* remote_ip = inet_ntoa(server.sin_addr);
@@ -82,6 +78,7 @@ void Socket::receive_from(Message& message_, const sockaddr_in& address){
 
     message.text[1023] = '\0';
     std::cout << remote_ip << ":" << remote_port << " > " << message.text << std::endl;
+
 
 }
 
