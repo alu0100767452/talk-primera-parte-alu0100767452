@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <sys/types.h>
 #include <cerrno>
+#include <exception>
+#include <system_error>
+#include <thread>
 
 
 struct Message{
@@ -20,7 +23,7 @@ class Socket{
         int fd;
 
     public:
-        Socket();
+        Socket(const sockaddr_in& address);
         ~Socket();
         void send_to(Message& message, const sockaddr_in& address);
         void receive_from(Message& message_, const sockaddr_in& address);
