@@ -25,9 +25,9 @@ class Socket{
     public:
         Socket(const sockaddr_in& address);
         ~Socket();
-        void send_to(Message& message, const sockaddr_in& address);
-        void receive_from(Message& message_, const sockaddr_in& address);
-
+        void send_to(const Message& message, const sockaddr_in& address);
+        Message receive_from(const sockaddr_in& address);
+        void mostrar(const Message& message, const sockaddr_in& address);
 
 };
 

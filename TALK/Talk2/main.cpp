@@ -3,7 +3,9 @@
 
 int main(){
     
-    
+
+try{    
+
     sockaddr_in address = make_ip_address("", 8889);
 
     Socket s(address);
@@ -23,12 +25,20 @@ int main(){
         
         linea.copy(message.text, sizeof(message.text)-1, 0);
         
-        s.send_to(message, ad);
-        s.receive_from(message, ad);
+         s.send_to(message, ad);
+         s.mostrar(s.receive_from(ad),ad);
+
 
     }
 
+
     std::cout << "Saliendo...\n";
+}
+catch(std::system_error& e){
+    std::cerr << program_invocation_name << ": " << e.what() << std::endl;
+    return 2;
+}
+
     return 0;
         
 
