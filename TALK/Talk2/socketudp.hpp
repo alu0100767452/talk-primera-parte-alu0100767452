@@ -21,14 +21,18 @@ class Socket{
 
     private:
         int fd;
+        
 
     public:
+        bool quit;
         Socket(const sockaddr_in& address);
         ~Socket();
         void send_to(const Message& message, const sockaddr_in& address);
         Message receive_from(const sockaddr_in& address);
         void mostrar(const Message& message, const sockaddr_in& address);
-
+        void enviar_mensaje(const sockaddr_in& address);
+        void recibir_mensaje(const sockaddr_in& address);
 };
 
 sockaddr_in make_ip_address( std::string ip_address, int port );
+void request_cancellation(std::thread& thread);
