@@ -25,8 +25,10 @@ class Socket{
 
     public:
         bool quit;
+        Socket(): fd(-1){};
         Socket(const sockaddr_in& address);
         ~Socket();
+        Socket& operator=(Socket&& s);
         void send_to(const Message& message, const sockaddr_in& address);
         Message receive_from(const sockaddr_in& address);
         void mostrar(const Message& message, const sockaddr_in& address);

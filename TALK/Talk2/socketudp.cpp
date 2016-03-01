@@ -30,25 +30,25 @@ Socket::Socket(const sockaddr_in& address){
         fd = socket(AF_INET, SOCK_DGRAM, 0);
         if( fd < 0)
             throw std::system_error(errno, std::system_category(), "Fallo al crear el socket");
-        else
-            std::cout << "Socket creado\n";
     
-  
 
         sockaddr_in server = address;
 
         if( bind(fd, reinterpret_cast<const sockaddr*>(&server), sizeof(server)) < 0 )
             throw std::system_error(errno, std::system_category(), "Fallo en bind");
-        else
-            std::cout << "Bind establecido\n";
-  
-
 
 
 }
 
 Socket::~Socket(){
     close(fd);
+}
+
+Socket& Socket::operator=(Socket&& s){
+    fd = s.fd;
+    quit = s.quit;
+    s.fd = -1;
+    return *this;
 }
 
 
@@ -59,7 +59,7 @@ void Socket::send_to(const Message& message, const sockaddr_in& address){
 
     int result;
     if( result = sendto(fd, &message, sizeof(message), 0, reinterpret_cast<sockaddr*>(&server), sizeof(server)) < 0 )
-        std::cerr << "Fallo al enviar: " << std::strerror(errno) << std::endl;
+        throw std::system_error(errno, std::system_category(), "Fallo al enviar");
 
 
 }
@@ -76,7 +76,7 @@ Message Socket::receive_from(const sockaddr_in& address){
         slen = sizeof(server);
 
         if( (recvfrom(fd, &message, sizeof(message), 0, reinterpret_cast<sockaddr*>(&server), &slen)) < 0 )
-            std::cerr << "Fallo al recibir" << std::strerror(errno) << std::endl;
+            throw std::system_error(errno, std::system_category(), "Fallo al recibir");
 
         return message;
 
@@ -106,7 +106,7 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
         if(linea == ":q")
         {
             quit = true;
-            break;
+           // break;
         } 
         
         linea.copy(message.text, sizeof(message.text)-1, 0);
