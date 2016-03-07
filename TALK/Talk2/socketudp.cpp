@@ -20,7 +20,12 @@ sockaddr_in make_ip_address( std::string ip_address, int port ){
 }
 
 void request_cancellation(std::thread& thread){
-    pthread_cancel(thread.native_handle());
+    try{
+        pthread_cancel(thread.native_handle());
+    }
+    catch(abi::__forced_unwind&){
+        throw;
+    };
 }
 
 Socket::Socket(const sockaddr_in& address){
@@ -106,22 +111,19 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
         if(linea == ":q")
         {
             quit = true;
-           // break;
+            break;
         } 
         
         linea.copy(message.text, sizeof(message.text)-1, 0);
              
         send_to(message, address);
     }
-
-
 }
 
 void Socket::recibir_mensaje(const sockaddr_in& address){
     while(!quit){
         mostrar(receive_from(address),address);
     }
-
 }
 
 

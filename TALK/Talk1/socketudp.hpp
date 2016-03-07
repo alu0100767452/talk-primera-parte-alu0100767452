@@ -12,6 +12,8 @@
 #include <system_error>
 #include <thread>
 #include <pthread.h>
+#include <atomic>
+#include <cxxabi.h>
 
 struct Message{
     char text[1024];

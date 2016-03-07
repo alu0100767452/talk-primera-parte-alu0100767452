@@ -11,6 +11,8 @@
 #include <exception>
 #include <system_error>
 #include <thread>
+#include <atomic>
+#include <cxxabi.h>
 
 
 struct Message{
