@@ -11,26 +11,33 @@ Compilación
 -------------
 
 Para llevar a cabo la compilación de los programas es necesario utilizar la siguiente linea de comandos:
-	**g++ -g -std=c++11 main.cpp socketudp.cpp -o talk**
-O bien ejecutando el comando **make**
-Con ello se genera un ejecutable [*talk*] que corresponderá con una copia del programa
+
+ - **g++ -g -std=c++11 main.cpp socketudp.cpp -o talk**
+
+O bien ejecutando el comando:
+
+ - **make**
+
+Con ello se genera un ejecutable [***talk***] que corresponderá con una copia del programa.
 
 Ejecución y Uso
 -------------
 
 Para la ejecución y uso deberemos:
 
- - ./talk
+ - **./talk**
  - Una vez hayamos lanzado cada uno de los programas en nuestras terminales, SÓLO deberemos escribir puesto que el programa se encargará de conectarse mediante los puertos 8888 y 8889 ambas terminales.
  - El uso es similar al de un Walkie Talkie primero se escribe y se van recibiendo los mensajes de la otra terminal según vayamos mandando los mensajes.
+ - En la última revisión del programa, se ha implementado el modelo multihilo permitiendo un uso más dinámico de la herramienta.
  - Para terminar de hablar bastará con escribir **:q** o con **Ctrl+C**.
 
 Características
 -------------
 Principales características del proyecto
 
- - Utilización de los sockets ( llamadas a función **socket()** )
- - Envío de mensajes mediante **sendto()**
- - Recibo de mensajes mediante **recvfrom()**
- - Manejo de errores
- - Creación de estructuras **Message** y función **make_ip_address**
+ - Utilización de los sockets ( llamadas a función **socket()** ).
+ - Envío de mensajes mediante **sendto()**.
+ - Recibo de mensajes mediante **recvfrom()**.
+ - Manejo de errores y excepciones.
+ - Creación de estructuras **Message** y función **make_ip_address**.
+ - Modelo multihilo que permite tanto enviar como recibir mensajes de manera simultánea gracias al uso de **thread**.
