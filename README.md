@@ -41,3 +41,4 @@ Principales características del proyecto
  - Manejo de errores y excepciones.
  - Creación de estructuras **Message** y función **make_ip_address**.
  - Modelo multihilo que permite tanto enviar como recibir mensajes de manera simultánea gracias al uso de **thread**.
+ - Cancelación de hilos. Función **request_cancellation**.
