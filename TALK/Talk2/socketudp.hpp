@@ -23,10 +23,10 @@ class Socket{
 
     private:
         int fd;
-        
+        bool quit;        
 
     public:
-        bool quit;
+        
         Socket(): fd(-1){};
         Socket(const sockaddr_in& address);
         ~Socket();

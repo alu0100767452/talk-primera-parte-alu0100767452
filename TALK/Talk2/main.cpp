@@ -20,7 +20,6 @@ try{
     enviar.join(); //Esperamos por el hilo
 
 
-
     request_cancellation(enviar);
     request_cancellation(recibir);
 
@@ -33,12 +32,6 @@ catch(abi::__forced_unwind&){
     std::cerr << "Error en la cancelación de los hilos\n";
     return 3;
 }
-
-
-
-
-        
-
 
     
     std::cout << "Saliendo...\n";

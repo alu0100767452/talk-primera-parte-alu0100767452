@@ -20,13 +20,7 @@ sockaddr_in make_ip_address( std::string ip_address, int port ){
 }
 
 void request_cancellation(std::thread& thread){
-    try{
         pthread_cancel(thread.native_handle());
-    }
-    catch(abi::__forced_unwind&){
-        throw;
-    }
-
 }
 
 
@@ -43,7 +37,6 @@ Socket::Socket(const sockaddr_in& address){
 
         if( bind(fd, reinterpret_cast<const sockaddr*>(&server), sizeof(server)) < 0 )
             throw std::system_error(errno, std::system_category(), "Fallo en bind");
-
    
 }
 
@@ -98,35 +91,46 @@ void Socket::mostrar(const Message& message, const sockaddr_in& address){
 }
 
 void Socket::enviar_mensaje(const sockaddr_in& address){
-    
-    std::string linea="";
-
-
-    while(!quit){
-        
-        Message message;
-        memset(message.text, 0, sizeof(message.text));
-
-        std::getline(std::cin, linea);
-        if(linea == ":q")
-        {
-            quit = true;
-            break;
+  
+    try{
+        std::string linea="";
+        while(!quit){
             
-        } 
-        linea.copy(message.text, sizeof(message.text)-1, 0);
-        
-        send_to(message, address);
-    }
+            Message message;
+            memset(message.text, 0, sizeof(message.text));
 
- 
+            std::getline(std::cin, linea);
+            if(linea == ":q")
+            {
+                quit = true;
+                break;
+                
+            } 
+            linea.copy(message.text, sizeof(message.text)-1, 0);
+            
+            send_to(message, address);
+        }
+    }  
+    catch(std::system_error& e){
+       std::cerr << "Error en el hilo" << std::endl;
+       quit = true;
+    }
 
 }
 
 void Socket::recibir_mensaje(const sockaddr_in& address){
-    while(!quit){
-        mostrar(receive_from(address),address);
+
+    try{
+        while(!quit){
+            usleep(25000);
+            mostrar(receive_from(address),address);
+        }
     }
+    catch(std::system_error& e)
+    {
+        std::cerr << "Error en el hilo" << std::endl;
+        quit = true;
+    }  
       
 }
 
