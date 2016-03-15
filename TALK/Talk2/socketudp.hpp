@@ -11,32 +11,69 @@
 #include <exception>
 #include <system_error>
 #include <thread>
+#include <pthread.h>
 #include <atomic>
 #include <cxxabi.h>
+#include <csignal>
+#include <signal.h>
+#include <vector>
+
+
+
+typedef void (*sighandler_t) (int);
+
+//std::atomic<bool> q(false);
 
 
 struct Message{
     char text[1024];
+    sockaddr_in dir_origen;
+};
+
+struct ADDRESS{
+    std::string sin_addr;
+    int port;
+};
+
+struct Message_AD{
+    Message m;
+    sockaddr_in address;
 };
 
 class Socket{
 
+
+
     private:
         int fd;
-        bool quit;        
+        bool quit;   
+        sockaddr_in d_origen;
+        //std::set<char*> clientes;  
+        std::vector<sockaddr_in> clientes;
+        bool c_s = false; //False = Cliente, True = Servidor
 
     public:
-        
+
         Socket(): fd(-1){};
-        Socket(const sockaddr_in& address);
+        Socket(const sockaddr_in& address, bool c_s_);
         ~Socket();
+
+
         Socket& operator=(Socket&& s);
         void send_to(const Message& message, const sockaddr_in& address);
         Message receive_from(const sockaddr_in& address);
         void mostrar(const Message& message, const sockaddr_in& address);
         void enviar_mensaje(const sockaddr_in& address);
         void recibir_mensaje(const sockaddr_in& address);
+         
+        void setQuit(bool set){ quit = set;};
+       
+        
+
 };
+
 
 sockaddr_in make_ip_address( std::string ip_address, int port );
 void request_cancellation(std::thread& thread);
+sighandler_t signal(int signum, sighandler_t handler);
+void signal_handler(int signum);

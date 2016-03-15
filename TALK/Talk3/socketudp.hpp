@@ -44,12 +44,10 @@ class Socket{
 
 
 
-
     private:
         int fd;
-        bool quit; 
-        bool ini = false;
-        sockaddr_in d_origen;  
+        bool quit;  
+        sockaddr_in d_origen; 
         //std::set<char*> clientes;  
         std::vector<sockaddr_in> clientes;
         bool c_s = false; //False = Cliente, True = Servidor

@@ -3,6 +3,54 @@
 #define PORT 8888
 #define PORT_REMOTO 8889
 
+std::atomic<bool> q(false);
+
+std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
+
+sockaddr_in ele;
+std::vector<sockaddr_in> v_aux;
+std::vector<sockaddr_in> v_final;
+int cont,i,k, j=0, z=0;
+int n = vector.size();
+
+    
+        for (i=0;i<vector.size();i++) {
+                cont=0;
+                ele=vector[i];
+                v_aux.push_back(ele);
+                for (k=0;k<vector.size();k++)
+                        if ( v_aux[k].sin_addr.s_addr == ele.sin_addr.s_addr )
+                                cont++;
+
+                if ( cont == 1 ) {
+                        v_final.push_back(ele);
+                }
+        }
+
+
+    return v_final;
+
+}
+
+void  signal_handler(int signum){
+    switch(signum){
+        case SIGINT:
+
+            write(1, " ¡Señal SIGINT interceptada! 2 x PRESS ENTER.\n", 49); 
+            q = true;
+            break;
+        case SIGTERM:
+
+            write(1, " ¡Señal SIGTERM interceptada! 2 x PRESS ENTER.\n", 50); 
+            q = true;
+            break;
+        case SIGHUP:
+
+            write(1, " ¡Señal SIGHUP interceptada! 2 x PRESS ENTER.\n", 49); 
+            q = true;
+            break;
+    }
+}
 
 
 sockaddr_in make_ip_address( std::string ip_address, int port ){
@@ -24,10 +72,12 @@ void request_cancellation(std::thread& thread){
 }
 
 
-Socket::Socket(const sockaddr_in& address){
+Socket::Socket(const sockaddr_in& address, bool c_s_){
 
         quit = false;
-  
+        c_s = c_s_;
+        d_origen = address;
+
         fd = socket(AF_INET, SOCK_DGRAM, 0);
         if( fd < 0)
             throw std::system_error(errno, std::system_category(), "Fallo al crear el socket");
@@ -48,6 +98,8 @@ Socket::~Socket(){
 Socket& Socket::operator=(Socket&& s){
     fd = s.fd;
     quit = s.quit;
+    c_s = s.c_s;
+    d_origen = s.d_origen;
     s.fd = -1;
     return *this;
 }
@@ -77,14 +129,26 @@ Message Socket::receive_from(const sockaddr_in& address){
            throw std::system_error(errno, std::system_category(), "Fallo al recibir");
 
 
+        if(c_s == true){
+
+            clientes.push_back(message.dir_origen);
+            clientes = eliminar_repetidos(clientes);
+
+                //ENVIO DEL MENSAJE A TODOS LOS CLIENTES
+               for(int i=0; i<clientes.size(); i++){
+                        send_to(message, clientes[i]);
+                }
+            }
+
+
         return message;
 }
 
 
 void Socket::mostrar(const Message& message, const sockaddr_in& address){
 
-    char* remote_ip = inet_ntoa(address.sin_addr);
-    int remote_port = ntohs(address.sin_port);
+    char* remote_ip = inet_ntoa(message.dir_origen.sin_addr);
+    int remote_port = ntohs(message.dir_origen.sin_port);
 
     std::cout << remote_ip << ":" << remote_port << " > " << message.text << std::endl;
 
@@ -99,6 +163,12 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
             Message message;
             memset(message.text, 0, sizeof(message.text));
 
+            //MANEJO DE SEÑALES
+            signal(SIGINT, &signal_handler);
+            signal(SIGTERM, &signal_handler);
+            signal(SIGHUP, &signal_handler);
+            setQuit(q);
+
             std::getline(std::cin, linea);
             if(linea == ":q")
             {
@@ -106,9 +176,12 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
                 break;
                 
             } 
-            linea.copy(message.text, sizeof(message.text)-1, 0);
-            
-            send_to(message, address);
+            if(linea != ""){
+                linea.copy(message.text, sizeof(message.text)-1, 0);
+                message.dir_origen = d_origen;
+                send_to(message, address);
+            }
+
         }
     }  
     catch(std::system_error& e){
