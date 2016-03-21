@@ -43,9 +43,6 @@ struct Message_AD{
 
 class Socket{
 
-
-
-
     private:
         int fd;
         bool quit; 
