@@ -7,29 +7,27 @@ std::atomic<bool> q(false);
 
 std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
 
-sockaddr_in ele;
-std::vector<sockaddr_in> v_aux;
-std::vector<sockaddr_in> v_final;
-int cont,i,k, j=0, z=0;
-int n = vector.size();
+    sockaddr_in ele;
+    std::vector<sockaddr_in> v_aux;
+    std::vector<sockaddr_in> v_final;
+    int cont,i,k, j=0, z=0;
+    int n = vector.size();
 
-    
-        for (i=0;i<vector.size();i++) {
-                cont=0;
-                ele=vector[i];
-                v_aux.push_back(ele);
-                for (k=0;k<vector.size();k++)
-                        if ( v_aux[k].sin_addr.s_addr == ele.sin_addr.s_addr )
-                                cont++;
+        
+            for (i=0;i<vector.size();i++) {
+                    cont=0;
+                    ele=vector[i];
+                    v_aux.push_back(ele);
+                    for (k=0;k<vector.size();k++)
+                            if ( v_aux[k].sin_addr.s_addr == ele.sin_addr.s_addr )
+                                    cont++;
 
-                if ( cont == 1 ) {
-                        v_final.push_back(ele);
-                }
-        }
+                    if ( cont == 1 ) {
+                            v_final.push_back(ele);
+                    }
+            }
 
-
-    return v_final;
-
+        return v_final;
 }
 
 void  signal_handler(int signum){
@@ -72,11 +70,12 @@ void request_cancellation(std::thread& thread){
 }
 
 
-Socket::Socket(const sockaddr_in& address, bool c_s_){
+Socket::Socket(const sockaddr_in& address, bool server_client, std::string user){
 
         quit = false;
-        c_s = c_s_;
+        servidor = server_client;
         d_origen = address;
+        username = user;
 
         fd = socket(AF_INET, SOCK_DGRAM, 0);
         if( fd < 0)
@@ -98,7 +97,8 @@ Socket::~Socket(){
 Socket& Socket::operator=(Socket&& s){
     fd = s.fd;
     quit = s.quit;
-    c_s = s.c_s;
+    servidor = s.servidor;
+    username = s.username;
     d_origen = s.d_origen;
     s.fd = -1;
     return *this;
@@ -129,16 +129,17 @@ Message Socket::receive_from(const sockaddr_in& address){
            throw std::system_error(errno, std::system_category(), "Fallo al recibir");
 
 
-        if(c_s == true){
+        if(servidor){
 
             clientes.push_back(message.dir_origen);
             clientes = eliminar_repetidos(clientes);
 
-                //ENVIO DEL MENSAJE A TODOS LOS CLIENTES
-               for(int i=0; i<clientes.size(); i++){
-                        send_to(message, clientes[i]);
-                }
-            }
+           //ENVIO DEL MENSAJE A TODOS LOS CLIENTES
+           for(int i=0; i<clientes.size(); i++){
+                if(clientes[i].sin_addr.s_addr != message.dir_origen.sin_addr.s_addr)
+                    send_to(message, clientes[i]);
+           }
+        }
 
 
         return message;
@@ -147,10 +148,11 @@ Message Socket::receive_from(const sockaddr_in& address){
 
 void Socket::mostrar(const Message& message, const sockaddr_in& address){
 
-    char* remote_ip = inet_ntoa(message.dir_origen.sin_addr);
-    int remote_port = ntohs(message.dir_origen.sin_port);
+    //char* remote_ip = inet_ntoa(message.dir_origen.sin_addr);
+    //int remote_port = ntohs(message.dir_origen.sin_port);
 
-    std::cout << remote_ip << ":" << remote_port << " > " << message.text << std::endl;
+    //std::cout << remote_ip << ":" << remote_port << " > " << message.text << std::endl;
+    std::cout << message.usuario << ": " << message.text << std::endl; 
 
 }
 
@@ -162,6 +164,7 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
             
             Message message;
             memset(message.text, 0, sizeof(message.text));
+            memset(message.usuario, 0, sizeof(message.usuario));
 
             //MANEJO DE SEÑALES
             signal(SIGINT, &signal_handler);
@@ -177,9 +180,19 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
                 
             } 
             if(linea != ""){
+
+                
                 linea.copy(message.text, sizeof(message.text)-1, 0);
+                username.copy(message.usuario, sizeof(message.usuario)-1, 0);                
                 message.dir_origen = d_origen;
-                send_to(message, address);
+                if(!servidor)
+                    send_to(message, address);
+                else{
+                    for(int i=0; i<clientes.size(); i++){
+                        if(clientes[i].sin_addr.s_addr != message.dir_origen.sin_addr.s_addr)
+                            send_to(message, clientes[i]);
+                    }
+                }
             }
 
         }
@@ -195,7 +208,6 @@ void Socket::recibir_mensaje(const sockaddr_in& address){
 
     try{
         while(!quit){
-            usleep(25000);
             mostrar(receive_from(address),address);
         }
     }

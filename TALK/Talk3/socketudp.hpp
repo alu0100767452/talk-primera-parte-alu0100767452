@@ -28,6 +28,7 @@ typedef void (*sighandler_t) (int);
 struct Message{
     char text[1024];
     sockaddr_in dir_origen;
+    char usuario[30];
 };
 
 struct ADDRESS{
@@ -44,18 +45,20 @@ class Socket{
 
 
 
+
     private:
         int fd;
-        bool quit;  
+        bool quit; 
+        bool ini = false;
         sockaddr_in d_origen; 
-        //std::set<char*> clientes;  
+        std::string username; 
         std::vector<sockaddr_in> clientes;
-        bool c_s = false; //False = Cliente, True = Servidor
+        bool servidor = false; //False = Cliente, True = Servidor
 
     public:
 
         Socket(): fd(-1){};
-        Socket(const sockaddr_in& address, bool c_s_);
+        Socket(const sockaddr_in& address, bool server_client, std::string user);
         ~Socket();
 
 
