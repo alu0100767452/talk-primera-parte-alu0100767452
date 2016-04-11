@@ -33,20 +33,18 @@ std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
 void  signal_handler(int signum){
     switch(signum){
         case SIGINT:
-
-            write(1, " ¡Señal SIGINT interceptada! 2 x PRESS ENTER.\n", 49); 
+            std::cout << "Desconectando..." << std::endl;
             q = true;
             break;
         case SIGTERM:
-
-            write(1, " ¡Señal SIGTERM interceptada! 2 x PRESS ENTER.\n", 50); 
+            std::cout << "Desconectando..." << std::endl;
             q = true;
             break;
         case SIGHUP:
-
-            write(1, " ¡Señal SIGHUP interceptada! 2 x PRESS ENTER.\n", 49); 
+            std::cout << "Desconectando..." << std::endl;
             q = true;
             break;
+        default: break;
     }
 }
 
@@ -159,20 +157,21 @@ void Socket::mostrar(const Message& message, const sockaddr_in& address){
 void Socket::enviar_mensaje(const sockaddr_in& address){
   
     try{
+
+    signal(SIGINT, &signal_handler);
+    signal(SIGTERM, &signal_handler);
+    signal(SIGHUP, &signal_handler);
+
         std::string linea="";
         while(!quit){
             
             Message message;
             memset(message.text, 0, sizeof(message.text));
-            memset(message.usuario, 0, sizeof(message.usuario));
-
-            //MANEJO DE SEÑALES
-            signal(SIGINT, &signal_handler);
-            signal(SIGTERM, &signal_handler);
-            signal(SIGHUP, &signal_handler);
-            setQuit(q);
+            memset(message.usuario, 0, sizeof(message.usuario));           
 
             std::getline(std::cin, linea);
+            setQuit(q);
+
             if(linea == ":q")
             {
                 quit = true;

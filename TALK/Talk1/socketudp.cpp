@@ -4,6 +4,7 @@
 #define PORT_REMOTO 8889
 
 std::atomic<bool> q(false);
+sigset_t set;
 
 std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
 
@@ -30,23 +31,22 @@ std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
         return v_final;
 }
 
+
 void  signal_handler(int signum){
     switch(signum){
         case SIGINT:
-
-            write(1, " ¡Señal SIGINT interceptada! 2 x PRESS ENTER.\n", 49); 
+            std::cout << "Desconectando..." << std::endl;
             q = true;
             break;
         case SIGTERM:
-
-            write(1, " ¡Señal SIGTERM interceptada! 2 x PRESS ENTER.\n", 50); 
+            std::cout << "Desconectando..." << std::endl;
             q = true;
             break;
         case SIGHUP:
-
-            write(1, " ¡Señal SIGHUP interceptada! 2 x PRESS ENTER.\n", 49); 
+            std::cout << "Desconectando..." << std::endl;
             q = true;
             break;
+        default: break;
     }
 }
 
@@ -81,7 +81,7 @@ Socket::Socket(const sockaddr_in& address, bool server_client, std::string user)
         if( fd < 0)
             throw std::system_error(errno, std::system_category(), "Fallo al crear el socket");
 
-    
+ 
         sockaddr_in server = address;
 
         if( bind(fd, reinterpret_cast<const sockaddr*>(&server), sizeof(server)) < 0 )
@@ -157,29 +157,37 @@ void Socket::mostrar(const Message& message, const sockaddr_in& address){
 }
 
 void Socket::enviar_mensaje(const sockaddr_in& address){
-  
+
+    signal(SIGINT, &signal_handler);
+    signal(SIGTERM, &signal_handler);
+    signal(SIGHUP, &signal_handler);  
+    
+
     try{
-        std::string linea="";
+        std::string linea;
+        
+        
         while(!quit){
             
             Message message;
             memset(message.text, 0, sizeof(message.text));
             memset(message.usuario, 0, sizeof(message.usuario));
 
-            //MANEJO DE SEÑALES
-            signal(SIGINT, &signal_handler);
-            signal(SIGTERM, &signal_handler);
-            signal(SIGHUP, &signal_handler);
-            setQuit(q);
-
+            
             std::getline(std::cin, linea);
+            setQuit(q);
+            
+            if(quit){
+                break;    
+            }
+   
             if(linea == ":q")
             {
                 quit = true;
                 break;
                 
             } 
-            if(linea != ""){
+            else if(linea != ""){
 
                 
                 linea.copy(message.text, sizeof(message.text)-1, 0);
@@ -193,7 +201,7 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
                             send_to(message, clientes[i]);
                     }
                 }
-            }
+            }         
 
         }
     }  
@@ -206,6 +214,9 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
 
 void Socket::recibir_mensaje(const sockaddr_in& address){
 
+    sigfillset(&set);
+    pthread_sigmask(SIG_BLOCK, &set, nullptr);
+    
     try{
         while(!quit){
             mostrar(receive_from(address),address);

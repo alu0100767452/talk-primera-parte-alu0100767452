@@ -22,7 +22,6 @@
 
 typedef void (*sighandler_t) (int);
 
-//std::atomic<bool> q(false);
 
 
 struct Message{
@@ -45,7 +44,7 @@ class Socket{
 
     private:
         int fd;
-        bool quit; 
+         
         bool ini = false;
         sockaddr_in d_origen; 
         std::string username; 
@@ -53,7 +52,7 @@ class Socket{
         bool servidor = false; //False = Cliente, True = Servidor
 
     public:
-
+bool quit;
         Socket(): fd(-1){};
         Socket(const sockaddr_in& address, bool server_client, std::string user);
         ~Socket();
