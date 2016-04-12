@@ -34,17 +34,14 @@ void  signal_handler(int signum){
     switch(signum){
         case SIGINT:
 
-            write(1, " ¡Señal SIGINT interceptada! 2 x PRESS ENTER.\n", 49); 
             q = true;
             break;
         case SIGTERM:
 
-            write(1, " ¡Señal SIGTERM interceptada! 2 x PRESS ENTER.\n", 50); 
             q = true;
             break;
         case SIGHUP:
 
-            write(1, " ¡Señal SIGHUP interceptada! 2 x PRESS ENTER.\n", 49); 
             q = true;
             break;
     }
