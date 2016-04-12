@@ -1,3 +1,4 @@
+//TALK3
 #include <iostream>
 #include <sys/socket.h>
 #include <netinet/ip.h>
@@ -18,18 +19,18 @@
 #include <signal.h>
 #include <vector>
 
-
+#include "historial.hpp"
 
 typedef void (*sighandler_t) (int);
 
 //std::atomic<bool> q(false);
 
 
-struct Message{
+/*struct Message{
     char text[1024];
     sockaddr_in dir_origen;
     char usuario[30];
-};
+};*/
 
 struct ADDRESS{
     std::string sin_addr;
