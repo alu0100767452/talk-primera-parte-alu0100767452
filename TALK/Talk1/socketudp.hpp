@@ -52,7 +52,7 @@ class Socket{
         std::string username; 
         std::vector<sockaddr_in> clientes;
         bool servidor = false; //False = Cliente, True = Servidor
-	Historial historial_;
+	    Historial historial_;
     public:
 	
         Socket(): fd(-1){};
