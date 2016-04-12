@@ -1,4 +1,4 @@
-Talk Primera-Parte
+Talk
 ===================
 
 
@@ -12,7 +12,7 @@ Compilación
 
 Para llevar a cabo la compilación de los programas es necesario utilizar la siguiente linea de comandos:
 
- - **g++ -g -std=c++11 main.cpp socketudp.cpp -o talk -pthread**
+ - **g++ -g -std=c++11 main.cpp socketudp.cpp historial.cpp -o talk -pthread**
 
 O bien ejecutando el comando:
 
@@ -23,12 +23,14 @@ Con ello se genera un ejecutable [***talk***] que corresponderá con una copia d
 Ejecución y Uso
 -------------
 
-Para la ejecución y uso deberemos:
+Para la ejecución del programa deberemos tener en cuenta el modo en cómo queremos ejecutar nuestro programa diferenciando entre:
 
- - Ejecutamos en nuestra terminal: **./talk**.
- - Una vez hayamos lanzado cada uno de los programas en nuestras terminales, SÓLO deberemos escribir puesto que el programa se encargará de conectarse mediante los puertos 8888 y 8889 ambas terminales.
- - El uso es similar al de un Walkie Talkie primero se escribe y se van recibiendo los mensajes de la otra terminal según vayamos mandando los mensajes.
- - En la última revisión del programa, se ha implementado el modelo multihilo permitiendo un uso más dinámico de la herramienta.
+ - **Modo Servidor**
+	 - ./talk -s -p < NúmeroPuerto > [-u < Usuario >]
+ - **Modo Cliente**
+	 - ./talk -c < dirServidor > -p < NúmeroPuerto > [-u < Usuario >]
+	 - 
+ - En la última revisión del programa, se ha implementado el modelo multihilo permitiendo un uso más dinámico de la herramienta y permitiendo el uso del chat de forma multiusuario, donde una copia del programa actúa de servidor al que se conectaran los usuarios enviando los mensajes que se reenviaran al resto de ellos.
  - Para terminar de hablar bastará con escribir **:q** o con **Ctrl+C**.
 
 Características
@@ -43,3 +45,14 @@ Principales características del proyecto
  - Modelo multihilo que permite tanto enviar como recibir mensajes de manera simultánea gracias al uso de **thread**.
  - Cancelación de hilos. Función **request_cancellation** y manejo de errores.
  - Utilización de metodos **join** y **detach** para la espera en los hilos.
+ - Permite chat multiusuario mediante el uso de clientes/servidor, para su funcionamiento, el usuario envía un mensaje al servidor y este lo redistribuye a todos los clientes conocidos excepto al que envió el mensaje almacenados en un vector de clientes.
+ - Permite argumentos pasados por la línea de comandos:
+	 - Modo Servidor:  **-s**
+	 - Modo Cliente:  **-c "dirServidor"**
+		 - Ejemplo:   -c 127.0.0.1
+	 - Puerto:  **-p "númeroPuerto"**
+		 - Ejemplo:   -p 8000
+	 - Usuario:  **-u "nombreUsuario"**
+		 - Ejemplo:  -u Alejandro
+	 - Ayuda:  **-h**
+ - Uso de **historial de mensajes** los mensajes tanto recibidos como enviados por el usuario se almacenarán en la siguiente ruta: **"./talk/talk.log"**

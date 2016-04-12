@@ -138,7 +138,7 @@ Message Socket::receive_from(const sockaddr_in& address){
                     send_to(message, clientes[i]);
            }
         }
-	    historial_.insert_sms_historial(message);
+	    //historial_.insert_sms_historial(message);
 
 
         return message;
@@ -192,7 +192,7 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
                 else{
                     for(int i=0; i<clientes.size(); i++){
                         if(clientes[i].sin_addr.s_addr != message.dir_origen.sin_addr.s_addr){
-			                historial_.insert_sms_historial(message);
+			                //historial_.insert_sms_historial(message);
                             send_to(message, clientes[i]);
 			            }
                     }
