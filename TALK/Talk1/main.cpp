@@ -54,7 +54,7 @@ int main(int argc, char* argv[]){
         Socket s;
         std::cout << "Iniciando chat..." << std::endl; 
         sockaddr_in ad = make_ip_address(ip_option, atoi(port_option.c_str()));  
-        sockaddr_in address = make_ip_address("127.0.0.1", 0);
+        sockaddr_in address = make_ip_address("127.0.0.1", 8001);
         sigfillset(&set);
         std::string name;
         
