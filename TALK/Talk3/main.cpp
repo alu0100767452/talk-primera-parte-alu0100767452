@@ -64,7 +64,7 @@ int main(int argc, char* argv[]){
             else
                 name = std::getenv("USER");
 
-	    Socket s(address, false, name);
+	        Socket s(address, false, name);
 
             //s = Socket(address, false, name);
             sigfillset(&set);
@@ -108,7 +108,7 @@ int main(int argc, char* argv[]){
             else
                 name = std::getenv("USER");
 
-	    Socket s(address, true, name);
+	        Socket s(address, true, name);
 
             //s = Socket(address, true, name);
             sigfillset(&set);
