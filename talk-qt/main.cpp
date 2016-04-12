@@ -1,8 +1,11 @@
+#include <QCoreApplication>
+
 #include "socketudp.hpp"
 
 
-
-int main(int argc, char* argv[]){
+int main(int argc, char *argv[])
+{
+    QCoreApplication a(argc, argv);
 
     bool help_option = false;
     bool server_option = false;
@@ -27,10 +30,10 @@ int main(int argc, char* argv[]){
             case 'c': std::cout << "MODO CLIENTE" << std::endl;
                       client_option = true;
                       ip_option = std::string(optarg); break;
-            case 'p': //std::printf("opción p con valor '%s'\n", optarg);
+            case 'p': //std::printf("opciÃ³n p con valor '%s'\n", optarg);
                       port_option = std::string(optarg); break;
             case '?': break;
-            default: std::fprintf(stderr, "?? getopt devolvió código de error 0%o ??\n", op);
+            default: std::fprintf(stderr, "?? getopt devolviÃ³ cÃ³digo de error 0%o ??\n", op);
 
 
 
@@ -87,7 +90,7 @@ int main(int argc, char* argv[]){
             return 2;
         }
         catch(abi::__forced_unwind&){
-            std::cerr << "Error en la cancelación de los hilos\n";
+            std::cerr << "Error en la cancelaciÃ³n de los hilos\n";
             return 3;
         }
 
@@ -133,7 +136,7 @@ int main(int argc, char* argv[]){
             return 2;
         }
         catch(abi::__forced_unwind&){
-            std::cerr << "Error en la cancelación de los hilos\n";
+            std::cerr << "Error en la cancelaciÃ³n de los hilos\n";
             return 3;
         }
 
@@ -146,7 +149,6 @@ int main(int argc, char* argv[]){
     }
 
     return 0;
-        
 
-
+    return a.exec();
 }
