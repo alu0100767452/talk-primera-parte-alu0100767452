@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
     if(help_option){
         std::cout << "Ayuda: " << std::endl;
         std::cout << "Modo SERVIDOR:  ./talk -s -p <PUERTO> [-u <USERNAME>]\n";
-        std::cout << "Modo CLIENTE:  ./talk -c <IP_CLIENTE> -p <PUERTO> [-u <USERNAME>]\n";
+        std::cout << "Modo CLIENTE:  ./talk -c <IP_SERVIDOR> -p <PUERTO> [-u <USERNAME>]\n";
         return 0;
     }
     else if(client_option){
