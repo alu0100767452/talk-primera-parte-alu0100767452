@@ -51,23 +51,22 @@ int main(int argc, char* argv[]){
         return 0;
     }
     else if(client_option){
-        
-        Socket s;
-        std::cout << "Iniciando chat..." << std::endl; 
-        sockaddr_in ad = make_ip_address(ip_option, atoi(port_option.c_str()));  
-        sockaddr_in address = make_ip_address("127.0.0.2", 8002);
-        sigset_t set;
-        std::string name;
-        
-        
-        try{
 
+	    try{
+            std::cout << "Iniciando chat..." << std::endl; 
+            sockaddr_in ad = make_ip_address(ip_option, atoi(port_option.c_str()));  
+            sockaddr_in address = make_ip_address("127.0.0.2", 8002);
+            sigset_t set;
+            std::string name;
+
+        
             if(username != "" )
                 name = username;
             else
                 name = std::getenv("USER");
 
-            s = Socket(address, false, name);
+	        Socket s(address, false, name);
+           // s = Socket(address, false, name);
             sigfillset(&set);
             std::thread enviar(&Socket::enviar_mensaje, &s, ad);
             std::thread recibir(&Socket::recibir_mensaje, &s, ad);
@@ -96,25 +95,21 @@ int main(int argc, char* argv[]){
     }
     else if(server_option){
         
-        
-        Socket s;
-        std::cout << "Iniciando chat..." << std::endl; 
-        sockaddr_in ad = make_ip_address("", atoi(port_option.c_str()));  
-        sockaddr_in address = make_ip_address("127.0.0.2", atoi(port_option.c_str()));
-        sigset_t set;
-        std::string name;
-        
-        
         try{
-
+            std::cout << "Iniciando chat..." << std::endl; 
+            sockaddr_in ad = make_ip_address("", atoi(port_option.c_str()));  
+            sockaddr_in address = make_ip_address("127.0.0.2", atoi(port_option.c_str()));
+            sigset_t set;
+            std::string name;
+        
             if(username != "" )
                 name = username;
             else
                 name = std::getenv("USER");
 
-            
+            Socket s(address, true, name);
 
-            s = Socket(address, true, name);
+            //s = Socket(address, true, name);
             sigfillset(&set);
             std::thread enviar(&Socket::enviar_mensaje, &s, ad);
             std::thread recibir(&Socket::recibir_mensaje, &s, address);
