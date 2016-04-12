@@ -56,3 +56,5 @@ Principales características del proyecto
 		 - Ejemplo:  -u Alejandro
 	 - Ayuda:  **-h**
  - Uso de **historial de mensajes** los mensajes tanto recibidos como enviados por el usuario se almacenarán en la siguiente ruta: **"./talk/talk.log"**
+ - Implementado el front-end gráfico en Qt para la aplicación gráfica.
+
