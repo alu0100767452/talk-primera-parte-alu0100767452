@@ -73,7 +73,7 @@ int main(int argc, char* argv[]){
 
             recibir.detach(); //Hilo demonio
             enviar.join();  //Esperamos por el hilo
-
+            pthread_sigmask(SIG_BLOCK, &set, nullptr);
             request_cancellation(recibir);
 
         }
@@ -116,7 +116,7 @@ int main(int argc, char* argv[]){
 
             recibir.detach(); //Hilo demonio
             enviar.join();  //Esperamos por el hilo
-
+            pthread_sigmask(SIG_BLOCK, &set, nullptr);
             request_cancellation(recibir);
 
         }

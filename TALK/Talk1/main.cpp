@@ -74,7 +74,7 @@ int main(int argc, char* argv[]){
 
             recibir.detach(); //Hilo demonio
             enviar.join();  //Esperamos por el hilo
-
+            pthread_sigmask(SIG_BLOCK, &set, nullptr);
             request_cancellation(recibir);
 
         }
@@ -112,12 +112,13 @@ int main(int argc, char* argv[]){
 
             //s = Socket(address, true, name);
             sigfillset(&set);
+            
             std::thread enviar(&Socket::enviar_mensaje, &s, ad);
             std::thread recibir(&Socket::recibir_mensaje, &s, address);
 
             recibir.detach(); //Hilo demonio
             enviar.join();  //Esperamos por el hilo
-
+            pthread_sigmask(SIG_BLOCK, &set, nullptr);
             request_cancellation(recibir);
 
         }
