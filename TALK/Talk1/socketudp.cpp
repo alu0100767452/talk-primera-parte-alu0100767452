@@ -4,7 +4,6 @@
 #define PORT_REMOTO 8889
 
 std::atomic<bool> q(false);
-sigset_t set;
 
 std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
 
@@ -31,22 +30,23 @@ std::vector<sockaddr_in> eliminar_repetidos(std::vector<sockaddr_in> vector){
         return v_final;
 }
 
-
 void  signal_handler(int signum){
     switch(signum){
         case SIGINT:
-            std::cout << "Desconectando..." << std::endl;
+
+            write(1, " ¡Señal SIGINT interceptada! 2 x PRESS ENTER.\n", 49); 
             q = true;
             break;
         case SIGTERM:
-            std::cout << "Desconectando..." << std::endl;
+
+            write(1, " ¡Señal SIGTERM interceptada! 2 x PRESS ENTER.\n", 50); 
             q = true;
             break;
         case SIGHUP:
-            std::cout << "Desconectando..." << std::endl;
+
+            write(1, " ¡Señal SIGHUP interceptada! 2 x PRESS ENTER.\n", 49); 
             q = true;
             break;
-        default: break;
     }
 }
 
@@ -81,7 +81,7 @@ Socket::Socket(const sockaddr_in& address, bool server_client, std::string user)
         if( fd < 0)
             throw std::system_error(errno, std::system_category(), "Fallo al crear el socket");
 
- 
+    
         sockaddr_in server = address;
 
         if( bind(fd, reinterpret_cast<const sockaddr*>(&server), sizeof(server)) < 0 )
@@ -140,6 +140,7 @@ Message Socket::receive_from(const sockaddr_in& address){
                     send_to(message, clientes[i]);
            }
         }
+	historial_.insert_sms_historial(message);
 
 
         return message;
@@ -157,51 +158,47 @@ void Socket::mostrar(const Message& message, const sockaddr_in& address){
 }
 
 void Socket::enviar_mensaje(const sockaddr_in& address){
-
-    signal(SIGINT, &signal_handler);
-    signal(SIGTERM, &signal_handler);
-    signal(SIGHUP, &signal_handler);  
-    
-
+  
     try{
-        std::string linea;
-        
-        
+        std::string linea="";
         while(!quit){
             
             Message message;
             memset(message.text, 0, sizeof(message.text));
             memset(message.usuario, 0, sizeof(message.usuario));
 
-            
-            std::getline(std::cin, linea);
+            //MANEJO DE SEÑALES
+            signal(SIGINT, &signal_handler);
+            signal(SIGTERM, &signal_handler);
+            signal(SIGHUP, &signal_handler);
             setQuit(q);
-            
-            if(quit){
-                break;    
-            }
-   
+
+            std::getline(std::cin, linea);
             if(linea == ":q")
             {
                 quit = true;
                 break;
                 
             } 
-            else if(linea != ""){
+            if(linea != ""){
 
                 
                 linea.copy(message.text, sizeof(message.text)-1, 0);
                 username.copy(message.usuario, sizeof(message.usuario)-1, 0);                
                 message.dir_origen = d_origen;
-                if(!servidor)
+                if(!servidor){
+		    historial_.insert_sms_historial(message);
                     send_to(message, address);
+		}
                 else{
                     for(int i=0; i<clientes.size(); i++){
-                        if(clientes[i].sin_addr.s_addr != message.dir_origen.sin_addr.s_addr)
+                        if(clientes[i].sin_addr.s_addr != message.dir_origen.sin_addr.s_addr){
+			    historial_.insert_sms_historial(message);
                             send_to(message, clientes[i]);
+			}
                     }
                 }
-            }         
+            }
 
         }
     }  
@@ -214,9 +211,6 @@ void Socket::enviar_mensaje(const sockaddr_in& address){
 
 void Socket::recibir_mensaje(const sockaddr_in& address){
 
-    sigfillset(&set);
-    pthread_sigmask(SIG_BLOCK, &set, nullptr);
-    
     try{
         while(!quit){
             mostrar(receive_from(address),address);
