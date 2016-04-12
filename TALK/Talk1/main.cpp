@@ -2,6 +2,9 @@
 
 
 
+
+
+
 int main(int argc, char* argv[]){
 
     bool help_option = false;
@@ -10,7 +13,6 @@ int main(int argc, char* argv[]){
     std::string port_option;
     std::string ip_option;
     std::string username;
-    sigset_t set;
 
     std::cout << "argc: " << argc << std::endl;
     int op;
@@ -37,7 +39,7 @@ int main(int argc, char* argv[]){
         }
     }
     if(optind < argc){
-        std::cout << "-- argumentos no opcion --" << std::endl;
+        std::cout << "-- argumentos no opción --" << std::endl;
         for(; optind < argc; ++optind){
             std::cout << "argv[" << optind << "]: " << argv[optind] << std::endl;
         }
@@ -51,35 +53,29 @@ int main(int argc, char* argv[]){
     }
     else if(client_option){
         
-        Socket s;
-        std::cout << "Iniciando chat..." << std::endl; 
-        sockaddr_in ad = make_ip_address(ip_option, atoi(port_option.c_str()));  
-        sockaddr_in address = make_ip_address("127.0.0.1", 0);
-        sigfillset(&set);
-        std::string name;
-        
         try{
-
-                    
+            std::cout << "Iniciando chat..." << std::endl; 
+            sockaddr_in ad = make_ip_address(ip_option, atoi(port_option.c_str()));  
+            sockaddr_in address = make_ip_address("127.0.0.1", 8001);
+            sigset_t set;
+            std::string name;
+         
             if(username != "" )
                 name = username;
             else
                 name = std::getenv("USER");
 
-            s = Socket(address, false, name);
-            
+	    Socket s(address, false, name);
+
+            //s = Socket(address, false, name);
+            sigfillset(&set);
             std::thread enviar(&Socket::enviar_mensaje, &s, ad);
             std::thread recibir(&Socket::recibir_mensaje, &s, ad);
-
-            
-            
 
             recibir.detach(); //Hilo demonio
             enviar.join();  //Esperamos por el hilo
 
-            
-
-            request_cancellation(enviar);
+            request_cancellation(recibir);
 
         }
         catch(std::system_error& e){
@@ -91,7 +87,6 @@ int main(int argc, char* argv[]){
             return 3;
         }
 
-
               
             std::cout << "Saliendo...\n";
 
@@ -101,31 +96,29 @@ int main(int argc, char* argv[]){
     }
     else if(server_option){
         
-        
-        Socket s;
-        std::cout << "Iniciando chat..." << std::endl; 
-        sockaddr_in ad = make_ip_address("", atoi(port_option.c_str()));  
-        sockaddr_in address = make_ip_address("127.0.0.1", atoi(port_option.c_str()));
-
-        std::string name;
-                
         try{
-
+            std::cout << "Iniciando chat..." << std::endl; 
+            sockaddr_in ad = make_ip_address("", atoi(port_option.c_str()));  
+            sockaddr_in address = make_ip_address("127.0.0.1", atoi(port_option.c_str()));
+            sigset_t set;
+            std::string name;
+                
             if(username != "" )
                 name = username;
             else
                 name = std::getenv("USER");
 
-            s = Socket(address, true, name);
+	    Socket s(address, true, name);
+
+            //s = Socket(address, true, name);
             sigfillset(&set);
-            pthread_sigmask(SIG_BLOCK, &set, nullptr);
             std::thread enviar(&Socket::enviar_mensaje, &s, ad);
             std::thread recibir(&Socket::recibir_mensaje, &s, address);
-       
-            recibir.detach(); 
-            enviar.join();  
-            
-            request_cancellation(enviar);
+
+            recibir.detach(); //Hilo demonio
+            enviar.join();  //Esperamos por el hilo
+
+            request_cancellation(recibir);
 
         }
         catch(std::system_error& e){
